@@ -28,6 +28,7 @@ BUTTONS = {
 
 
 def buttondown(epin):
+    print(f"buttondown handler {epin} - start")
     booped = not machine.Pin(0, mode=machine.Pin.IN).value()
     hexindex = 1
     for key in TwentyTwentyFour.pin_assignment.keys():
@@ -41,6 +42,7 @@ def buttondown(epin):
             else:
                 eventbus.emit(ButtonDownEvent(button=BUTTONS[key]))
                 TwentyTwentyFour.button_states[key][0] = True
+    print(f"buttondown handler {epin} - end")
 
 
 def buttonup(epin):

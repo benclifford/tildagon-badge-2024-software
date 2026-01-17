@@ -140,15 +140,19 @@ class _Scheduler:
 
     async def _handle_request_foreground_pop(self, event):
         app = event.app
+        print(f"scheduler: foreground pop event for {app}")
 
         if app not in self.apps:
             print(f"Background request ignored for app that's not running: {app}")
             return
 
         if app in self.foreground_stack:
+            print(f"Background stack rearranging for app {app}")
             self.foreground_stack.reverse()
             self.foreground_stack.remove(app)
             self.foreground_stack.reverse()
+        else:
+            print(f"App {app} is not in the foreground stack")
 
         self.mark_focused()
 

@@ -6,6 +6,7 @@ from system.scheduler.events import RequestStopAppEvent
 from system.notification.events import ShowNotificationEvent
 
 import sys
+import time
 
 
 class _EventBus:
@@ -67,8 +68,11 @@ class _EventBus:
             pass
 
     async def run(self):
+        print("BENC eventbus start")
         while True:
             event = await self.event_queue.get()
+            t_start = time.ticks_ms()
+            print(f"BENC eventbus processing event {event}")
             requires_focus = hasattr(event, "requires_focus") and event.requires_focus
 
             # For both synchronous and asynchronous handlers, loop over the apps
@@ -124,6 +128,8 @@ class _EventBus:
                                 message=f"{app.__class__.__name__} has crashed"
                             )
                         )
+            t_end = time.ticks_ms()
+            print(f"BENC: eventbus: took {t_end - t_start} ms to process {event}")
 
 
 eventbus = _EventBus()

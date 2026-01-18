@@ -14,6 +14,7 @@ from system.eventbus import eventbus
 from app_components.utils import path_isfile
 from firmware_apps.settings_app import PAT_DIR
 from system.notification.events import ShowNotificationEvent
+from patterns.base import BasePattern
 
 
 class PatternDisplay(App):
@@ -23,7 +24,11 @@ class PatternDisplay(App):
         eventbus.on_async(PatternDisable, self._disable, self)
         eventbus.on_async(PatternReload, self._reload, self)
         eventbus.on_async(PatternSet, self._set, self)
-        self.load_pattern()
+        try:
+            self.load_pattern()
+        except Exception as e:
+            print("exception loading pattern at startup. logging and proceeding.")
+            sys.print_exception(e)
         self.enabled = settings.get("pattern_generator_enabled", True)
 
     def load_pattern(self):
@@ -53,6 +58,7 @@ class PatternDisplay(App):
                     )
                     _pclass = getattr(_pmodule, _patternclass)
                     self._p = _pclass()
+                    assert isinstance(self._p, BasePattern), "Pattern is not a BasePattern instance"
                 except ImportError:
                     raise ImportError(f"Pattern {path} not found!")
                 except Exception as e:
@@ -112,6 +118,7 @@ class PatternDisplay(App):
                     await asyncio.sleep(1 / self._p.fps)
                 except Exception as e:
                     print(f"Error creating pattern: {e}")
+                    sys.print_exception(e, sys.stderr)
                     eventbus.emit(
                         ShowNotificationEvent(
                             message=f"Pattern {self.pattern[0]} has crashed"

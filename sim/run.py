@@ -101,6 +101,9 @@ def _path_replace(p):
     if p.startswith("/apps"):
         dir = os.path.dirname(__file__)
         p = f"{dir}{p}"
+    if p.startswith("/pattern"):
+        dir = os.path.dirname(__file__)
+        p = f"{dir}{p}"
     return p
 
 

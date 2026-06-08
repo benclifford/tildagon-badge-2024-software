@@ -17,6 +17,7 @@ from system.notification.events import ShowNotificationEvent
 from app_components.background import Background as bg
 
 APP_DIR = "/apps"
+LUXURY_APP_DIR = "/luxury_apps"
 
 
 class InstallNotificationEvent(Event):
@@ -54,6 +55,8 @@ def load_info(folder, name):
 def list_user_apps():
     with PerfTimer("List user apps"):
         apps = []
+
+        contents = []
         try:
             contents = os.listdir(APP_DIR)
         except OSError:
@@ -62,7 +65,6 @@ def list_user_apps():
                 os.mkdir(APP_DIR)
             except OSError:
                 pass
-            return []
 
         for name in contents:
             app = {
@@ -78,6 +80,32 @@ def list_user_apps():
             app.update(metadata)
             if not app["hidden"]:
                 apps.append(app)
+
+        contents = []
+        try:
+            contents = os.listdir(LUXURY_APP_DIR)
+        except OSError:
+            # No apps dir full stop
+            try:
+                os.mkdir(LUXURY_APP_DIR)
+            except OSError:
+                pass
+
+        for name in contents:
+            app = {
+                "path": f"luxury_apps.{name}.app",
+                "callable": "__app_export__",
+                "name": name,
+                "folder": name,
+                "hidden": False,
+            }
+            metadata = load_info(LUXURY_APP_DIR, name)
+            if "version" not in metadata:
+                app["version"] = "0.0.0"
+            app.update(metadata)
+            if not app["hidden"]:
+                apps.append(app)
+
         return apps
 
 
